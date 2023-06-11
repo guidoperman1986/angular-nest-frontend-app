@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { environments } from 'src/environment/environments';
-import { LoginResponse, User } from '../interfaces/user.interface';
+import { AuthResponse, User } from '../interfaces/user.interface';
 import { AuthStatus } from '../interfaces/auth-status.enum';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { CheckTokenResponse } from '../interfaces/check-token.response';
@@ -27,7 +27,19 @@ export class AuthService {
     const url = `${this.baseUrl}/auth/login`;
     const body = { email, password };
 
-    return this.http.post<LoginResponse>(url, body).pipe(
+    return this.http.post<AuthResponse>(url, body).pipe(
+      map(({ user, token }) => this.setAuthentication(user, token)),
+      catchError(({ error }) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  register(email: string, password: string, name: string): Observable<boolean> {
+    const url = `${this.baseUrl}/auth/register`;
+    const body = { email, password, name };
+
+    return this.http.post<AuthResponse>(url, body).pipe(
       map(({ user, token }) => this.setAuthentication(user, token)),
       catchError(({ error }) => {
         return throwError(() => error);
@@ -57,8 +69,7 @@ export class AuthService {
 
   private setAuthentication(user: User, token: string): boolean {
     this._currentUser.set(user);
-    this._authStatus.set(AuthStatus.authenticated);
-    console.log(this.authStatus());
+    this._authStatus.set(AuthStatus.authenticated);    
     localStorage.setItem('token', token);
 
     return true;
