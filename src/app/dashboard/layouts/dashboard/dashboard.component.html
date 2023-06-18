@@ -1,13 +1,56 @@
-<h1>Dashboard</h1>
-<hr>
+<nav
+  class="navbar bg-dark border-bottom border-bottom-dark"
+  data-bs-theme="dark"
+>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Words</a>
+    <span class="text-white txt1">{{ user()?.name | titlecase }}</span>
+  </div>
+</nav>
+<br />
 
-<h3>User</h3>
-<pre>{{ user() | json }}</pre>
+<div class="container">
+  <div class="row">
+    <div class="col-4 m-auto d-flex flex-column text-center">
+      <form [formGroup]="myForm" (ngSubmit)="saveTranslation()">
+        <input
+          formControlName="englishWord"
+          type="text"
+          name=""
+          id=""
+          class="form-control mb-1 txt1"
+          placeholder="English Word"
+        />
+        <input
+          formControlName="translation"
+          type="text"
+          name=""
+          id=""
+          class="form-control mb-1 txt1"
+          placeholder="Translation"
+        />
 
+        <button class="btn btn-secondary txt2 mb-2" [disabled]="myForm.invalid">
+          Save
+        </button>
+      </form>
 
-<br>
-<!-- <span routerLink="/auth/login">Ir a login</span> -->
+      <div>
+        <div *ngIf="myForm.get('englishWord')?.touched && myForm.get('englishWord')?.errors">
+          <div class="alert alert-danger" *ngIf="getErrors('englishWord')?.['required']">English Word field is required</div>
+          <div class="alert alert-danger" *ngIf="getErrors('englishWord')?.['minLength']">English Word field should be at least one word</div>
+        </div>
+        <div *ngIf="myForm.get('translation')?.touched && myForm.get('translation')?.errors">
+          <div class="alert alert-danger" *ngIf="getErrors('translation')?.['required']">Translation field is required</div>
+          <div class="alert alert-danger" *ngIf="getErrors('translation')?.['minLength']">Translation field should be at least one word</div>
+        </div>
+      </div>
+    </div>
 
-<button (click)="onLogout()">
-  Cerrar Sesión
-</button>
+    <div class="col-8">
+      {{ words | json }}
+    </div>
+  </div>
+</div>
+
+<button (click)="onLogout()">Cerrar Sesión</button>

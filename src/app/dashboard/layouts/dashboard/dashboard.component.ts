@@ -1,24 +1,56 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { AuthService } from 'src/app/auth/services/auth.service';
 import { WordService } from '../../services/word.service';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-
   private authService = inject(AuthService);
-  private wordsService = inject(WordService)
-  user = computed(()=>this.authService.currentUser())
+  private wordsService = inject(WordService);
+  private fb = inject(FormBuilder);
+  user = computed(() => this.authService.currentUser());
+
+  myForm = this.fb.group({
+    englishWord: ['', [Validators.required, Validators.minLength(1)]],
+    translation: ['', [Validators.required, Validators.minLength(1)]],
+  });
 
   ngOnInit(): void {
-      this.wordsService.createWord({englishWord: 'hello', translation: 'hola'}).subscribe(data=>console.log(data))
+    this.wordsService.findAllWords().subscribe()
+      
   }
 
   onLogout() {
-    this.authService.logout()
+    this.authService.logout();
   }
 
+  saveTranslation() {
+    if (this.myForm.invalid) return;
+
+    const { englishWord, translation } = this.myForm.value;
+
+    if (englishWord && translation)
+      this.wordsService.createWord({ englishWord, translation }).subscribe({
+        next: (data) =>
+          Swal.fire(
+            'Good!',
+            `Word ${data.englishWord} successfully saved`,
+            'success'
+          ),
+        error: (error) => Swal.fire('Error', error, 'error'),
+      });
+  }
+
+  get words() {
+    return this.wordsService.words();
+  }
+
+  getErrors(control: string) {
+    return this.myForm.get(control)?.errors
+  }
 }
