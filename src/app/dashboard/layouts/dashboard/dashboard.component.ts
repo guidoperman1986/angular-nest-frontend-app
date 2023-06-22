@@ -21,8 +21,7 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.wordsService.findAllWords().subscribe()
-      
+    this.wordsService.findAllWords(0, 10).subscribe();
   }
 
   onLogout() {
@@ -36,12 +35,15 @@ export class DashboardComponent implements OnInit {
 
     if (englishWord && translation)
       this.wordsService.createWord({ englishWord, translation }).subscribe({
-        next: (data) =>
+        next: (data) => {
           Swal.fire(
             'Good!',
             `Word ${data.englishWord} successfully saved`,
             'success'
-          ),
+          );
+
+          this.myForm.reset()
+        },
         error: (error) => Swal.fire('Error', error, 'error'),
       });
   }
@@ -51,6 +53,6 @@ export class DashboardComponent implements OnInit {
   }
 
   getErrors(control: string) {
-    return this.myForm.get(control)?.errors
+    return this.myForm.get(control)?.errors;
   }
 }

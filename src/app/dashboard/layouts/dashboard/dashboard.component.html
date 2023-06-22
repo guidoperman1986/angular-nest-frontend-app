@@ -48,7 +48,21 @@
     </div>
 
     <div class="col-8">
-      {{ words | json }}
+      <table>
+        <thead>
+          <tr>
+            <td>English Word</td>
+            <td>Translation</td>
+          </tr>
+        </thead>
+        <tbody>          
+          <tr *ngFor="let word of words">
+            <td>{{ word.englishWord }}</td>
+            <td>{{ word.translation }}</td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
   </div>
 </div>
