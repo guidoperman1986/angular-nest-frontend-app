@@ -7,11 +7,11 @@
     <span class="text-white txt1">{{ user()?.name | titlecase }}</span>
   </div>
 </nav>
-<br />
 
 <div class="container">
-  <div class="row">
+  <div class="row content">
     <div class="col-4 m-auto d-flex flex-column text-center">
+      <h1 class="mb-4">Add new word</h1>
       <form [formGroup]="myForm" (ngSubmit)="saveTranslation()">
         <input
           formControlName="englishWord"
@@ -47,12 +47,12 @@
       </div>
     </div>
 
-    <div class="col-8">
-      <table>
+    <div class="col-8 table-container">
+      <table class="table">
         <thead>
           <tr>
-            <td>English Word</td>
-            <td>Translation</td>
+            <th>English Word</th>
+            <th>Translation</th>
           </tr>
         </thead>
         <tbody>          
@@ -67,4 +67,4 @@
   </div>
 </div>
 
-<button (click)="onLogout()">Cerrar Sesión</button>
+<!-- <button (click)="onLogout()">Cerrar Sesión</button> -->

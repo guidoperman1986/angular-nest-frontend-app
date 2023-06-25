@@ -49,6 +49,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get words() {
+    console.log(this.wordsService.words());
     return this.wordsService.words();
   }
 

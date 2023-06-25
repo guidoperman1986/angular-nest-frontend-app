@@ -1,0 +1,24 @@
+.container {
+    height: 88vh;
+    width: 100vw;
+    display: flex;
+    align-items: center; 
+}
+
+.content {
+    width: 100%;
+}
+
+.table-container {
+    display: flex;
+    justify-content: center;
+}
+
+table {
+    width: 60%;
+}
+
+td {
+    font-weight: normal;
+    font-family: Poppins-Regular;
+}
