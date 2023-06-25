@@ -11,6 +11,8 @@
 
 .table-container {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
 }
 
@@ -21,4 +23,8 @@ table {
 td {
     font-weight: normal;
     font-family: Poppins-Regular;
+}
+
+.pointer {
+    cursor: pointer;
 }

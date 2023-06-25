@@ -3,6 +3,7 @@ import { AuthService } from 'src/app/auth/services/auth.service';
 import { WordService } from '../../services/word.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,6 +15,9 @@ export class DashboardComponent implements OnInit {
   private wordsService = inject(WordService);
   private fb = inject(FormBuilder);
   user = computed(() => this.authService.currentUser());
+  wordPages: any[] = [];
+  rowsPerPage = 10;
+  currentPage = 0;
 
   myForm = this.fb.group({
     englishWord: ['', [Validators.required, Validators.minLength(1)]],
@@ -34,26 +38,47 @@ export class DashboardComponent implements OnInit {
     const { englishWord, translation } = this.myForm.value;
 
     if (englishWord && translation)
-      this.wordsService.createWord({ englishWord, translation }).subscribe({
-        next: (data) => {
-          Swal.fire(
-            'Good!',
-            `Word ${data.englishWord} successfully saved`,
-            'success'
-          );
+      this.wordsService
+        .createWord({ englishWord, translation })
+        .pipe(switchMap(()=>this.wordsService.findAllWords(0, 10)))
+        .subscribe({
+          next: (data) => {
+            Swal.fire(
+              'Good!',
+              `Word "${englishWord}" successfully saved`,
+              'success'
+            );
 
-          this.myForm.reset()
-        },
-        error: (error) => Swal.fire('Error', error, 'error'),
-      });
+            this.myForm.reset();
+          },
+          error: (error) => Swal.fire('Error', error, 'error'),
+        });
   }
 
   get words() {
-    console.log(this.wordsService.words());
     return this.wordsService.words();
+  }
+
+  get pagination() {
+    return this.wordsService.pagination();
+  }
+
+  getTotalPages() {
+    const totalPages = Math.ceil(this.pagination.countItems / 10);
+    return new Array(totalPages);
   }
 
   getErrors(control: string) {
     return this.myForm.get(control)?.errors;
+  }
+
+  goToPage(i: number) {
+    if (i < 0 || i >= this.getTotalPages().length) return;
+
+    this.currentPage = i;
+
+    this.wordsService
+      .findAllWords(this.currentPage * this.rowsPerPage, this.rowsPerPage)
+      .subscribe();
   }
 }
