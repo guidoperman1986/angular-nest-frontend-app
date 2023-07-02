@@ -12,7 +12,7 @@
   <div class="row content">
     <div class="col-4 m-auto d-flex flex-column text-center">
       <h1 class="mb-4">Add new word</h1>
-      <form [formGroup]="myForm" (ngSubmit)="saveTranslation()">
+      <form [formGroup]="myForm" (ngSubmit)="executeSaving()">
         <input
           formControlName="englishWord"
           type="text"
@@ -31,7 +31,7 @@
         />
 
         <button class="btn btn-secondary txt2 mb-2" [disabled]="myForm.invalid">
-          Save
+          {{ !isEdition ? "Save" : "Edit" }}
         </button>
       </form>
 
@@ -78,48 +78,63 @@
     </div>
 
     <div class="col-8 table-container">
-      <ng-container>
+      <ng-container *ngIf="!isLoading; else loading">
         <table class="table table-hover">
           <thead>
             <tr>
               <th>English Word</th>
               <th>Translation</th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let word of words">
               <td>{{ word.englishWord }}</td>
               <td>{{ word.translation }}</td>
+              <td>
+                <i
+                  class="fas fa-solid fa-pen"
+                  style="cursor: pointer"
+                  (click)="editWord(word)"
+                ></i>
+              </td>
+              <td><i class="fas fa-sharp fa-solid fa-xmark"></i></td>
             </tr>
           </tbody>
         </table>
 
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item">
+              <a class="page-link pointer" (click)="goToPage(currentPage - 1)"
+                >Previous</a
+              >
+            </li>
+            <li
+              [ngClass]="{ active: currentPage === i }"
+              class="page-item"
+              *ngFor="let page of getTotalPages(); let i = index"
+            >
+              <a class="page-link pointer" (click)="goToPage(i)">{{ i + 1 }}</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link pointer" (click)="goToPage(currentPage + 1)"
+                >Next</a
+              >
+            </li>
+          </ul>
+        </nav>
       </ng-container>
-      
-
-      <nav aria-label="Page navigation example">
-        <ul class="pagination">
-          <li class="page-item">
-            <a class="page-link pointer" (click)="goToPage(currentPage - 1)"
-              >Previous</a
-            >
-          </li>
-          <li
-            [ngClass]="{ active: currentPage === i }"
-            class="page-item"
-            *ngFor="let page of getTotalPages(); let i = index"
-          >
-            <a class="page-link pointer" (click)="goToPage(i)">{{ i + 1 }}</a>
-          </li>
-          <li class="page-item">
-            <a class="page-link pointer" (click)="goToPage(currentPage + 1)"
-              >Next</a
-            >
-          </li>
-        </ul>
-      </nav>
     </div>
   </div>
 </div>
+
+<ng-template #loading>
+  <div class="mb-5 d-flex flex-column align-items-center">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span class="sr-only">Loading...</span>
+  </div>
+</ng-template>
 
 <!-- <button (click)="onLogout()">Cerrar Sesión</button> -->

@@ -3,7 +3,8 @@ import { AuthService } from 'src/app/auth/services/auth.service';
 import { WordService } from '../../services/word.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { switchMap } from 'rxjs';
+import { delay, switchMap, tap } from 'rxjs';
+import { Word } from '../../interfaces/word.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,9 @@ export class DashboardComponent implements OnInit {
   wordPages: any[] = [];
   rowsPerPage = 10;
   currentPage = 0;
+  isEdition!: boolean;
+
+  isLoading!: boolean;
 
   myForm = this.fb.group({
     englishWord: ['', [Validators.required, Validators.minLength(1)]],
@@ -25,11 +29,27 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.wordsService.findAllWords(0, 10).subscribe();
+    this.wordsService
+      .findAllWords(0, 10)
+      .pipe(
+        tap(() => (this.isLoading = true)),
+        delay(1500)
+      )
+      .subscribe(() => (this.isLoading = false));
   }
 
   onLogout() {
     this.authService.logout();
+  }
+
+  executeSaving() {
+    !this.isEdition ? this.saveTranslation() : this.editTranslation();
+  }
+
+  editTranslation() {
+
+    this.myForm.reset();
+    this.isEdition = false;
   }
 
   saveTranslation() {
@@ -40,7 +60,7 @@ export class DashboardComponent implements OnInit {
     if (englishWord && translation)
       this.wordsService
         .createWord({ englishWord, translation })
-        .pipe(switchMap(()=>this.wordsService.findAllWords(0, 10)))
+        .pipe(switchMap(() => this.wordsService.findAllWords(0, 10)))
         .subscribe({
           next: (data) => {
             Swal.fire(
@@ -79,6 +99,16 @@ export class DashboardComponent implements OnInit {
 
     this.wordsService
       .findAllWords(this.currentPage * this.rowsPerPage, this.rowsPerPage)
-      .subscribe();
+      .pipe(tap(() => (this.isLoading = true)))
+      .subscribe(() => (this.isLoading = false));
+  }
+
+  editWord(word: Word) {
+    this.isEdition = true;
+
+    this.myForm.setValue({
+      englishWord: word.englishWord,
+      translation: word.translation,
+    });
   }
 }
